@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdn.tailwindcss.com"></script>
+      <link href="./CSS/output.css" rel="stylesheet">
     <title>Index</title>
 </head>
 <body>
-<div class="bg-teal-600">
     <div class="py-12 flex justify-center bg-amber-700">
         <p class="text-4xl text-cyan-500">It Works!</p>
     </div>
@@ -20,7 +19,5 @@
     <br>
     <br>
     Een voorbeeld van een pagina die gegevens uit de database haalt vind je hier: <a href="componist-aantalstukken.php">http://<?=$_SERVER['HTTP_HOST']?>/componist-aantalstukken.php</a>
-</div>
-
 </body>
 </html>
