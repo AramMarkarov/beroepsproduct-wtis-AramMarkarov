@@ -8,7 +8,7 @@
     <title>Index</title>
 </head>
 <body>
-    <div class="py-12 flex justify-center bg-amber-700">
+    <div class="py-12 flex justify-center">
         <p class="text-4xl text-cyan-500">It Works!</p>
     </div>
     <?php echo('Hallo WT\'er, de webserver is online en PHP werkt.'); ?>
