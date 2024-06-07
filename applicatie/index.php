@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <link href="./CSS/output.css" rel="stylesheet">
+      <script src="https://cdn.tailwindcss.com"></script>
     <title>Index</title>
 </head>
 <body>
-    <div class="py-12 flex justify-center">
+    <div class="py-12 flex justify-center bg-amber-700">
         <p class="text-4xl text-cyan-500">It Works!</p>
     </div>
     <?php echo('Hallo WT\'er, de webserver is online en PHP werkt.'); ?>
