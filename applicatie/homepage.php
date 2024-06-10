@@ -11,15 +11,17 @@
     <?php include 'includes/tailwind_script.php';?>
 </head>
 <body class="bg-background text-text text-body">
+<!-- Nav -->
 <?php include 'includes/nav.php'; ?>
     <div class="min-h-screen ">
         <div class="w-[80] flex justify-center">
             <div class="mt-24">
-                <h1 class="text-headline font-bold mb-4">Welcome to GelreAirport</h1>
-                <p class="text-subheader mb-6">Your gateway to the world. Experience comfort and convenience with GelreAirport.</p>
+                <h1 class="text-headline font-bold mb-4">Welcome to GelreAir</h1>
+                <p class="text-subheader mb-6">Your gateway to the world. Experience comfort and convenience with GelreAir.</p>
             </div>
         </div>
     </div>
+<!-- Footer -->
 <?php include 'includes/footer.php'; ?>
 </body>
 </html>
