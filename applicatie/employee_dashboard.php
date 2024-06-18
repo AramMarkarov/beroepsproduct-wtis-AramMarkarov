@@ -71,34 +71,30 @@ if (!empty($flightDetails)) {
 <?php include 'includes/nav.php'; ?>
 
 <!-- Main Content -->
-<div class="mx-[20%] w-[60%] flex flex-wrap justify-center gap-8 mt-4 mb-4">
-    <!-- Flight Information -->
-    <section id="flights" class="bg-nav p-6 rounded-lg w-[48%]">
-        <h2 class="text-2xl font-bold mb-4">Flight Information</h2>
-        <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
-            <div class="mb-4">
-                <label for="flightNumber" class="block text-sm font-medium text-gray-700">Flight Number</label>
-                <input type="text" id="flightNumber" name="flightNumber" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-            </div>
-            <div class="flex justify-end">
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Retrieve Flight Info</button>
-            </div>
-        </form>
-
-        <?php if (!empty($error)): ?>
-            <p class="text-red-500 mt-4"><?php echo htmlspecialchars($error); ?></p>
-        <?php endif; ?>
-
-        <?php if (!empty($flightDetails)): ?>
-            <div class="mt-8 p-6 rounded-lg w-full max-w-lg">
-                <table class="table-auto w-full">
+<div class="mx-[10%] w-[80%] py-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Flight Information -->
+        <section id="flights" class="bg-nav p-6 rounded-lg shadow-lg h-full flex flex-col">
+            <h2 class="text-2xl font-bold mb-4">Flight Information</h2>
+            <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="POST" class="flex flex-col flex-grow">
+                <div class="mb-4 flex-grow">
+                    <label for="flight-number" class="block text-sm font-medium text-gray-700">Flight Number</label>
+                    <input type="text" id="flight-number" name="flight-number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Retrieve Flight Info</button>
+                </div>
+            </form>
+            <?php if (!empty($error)): ?>
+                <p class="text-red-500 mt-4"><?php echo htmlspecialchars($error); ?></p>
+            <?php endif; ?>
+            <?php if (!empty($flightDetails)): ?>
+                <table class="table-auto w-full max-w-lg mt-8">
                     <thead>
                     <tr>
-                        <th class="px-4 py-2">Vluchtnummer</th>
-                        <th class="px-4 py-2">Bestemming</th>
-                        <th class="px-4 py-2">Vertrektijd</th>
-                        <th class="px-4 py-2">Balie</th>
-                        <th class="px-4 py-2">Gate</th>
+                        <th class="px-4 py-2">Flight Number</th>
+                        <th class="px-4 py-2">Destination</th>
+                        <th class="px-4 py-2">Departure Time</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -107,12 +103,93 @@ if (!empty($flightDetails)) {
                             <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['vluchtnummer']); ?></td>
                             <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['luchthaven_naam']); ?></td>
                             <td class="border px-4 py-2"><?php echo htmlspecialchars($formattedTime); ?></td>
-                            <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['balienummer']); ?></td>
-                            <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['gatecode']); ?></td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
                 </table>
+            <?php endif; ?>
+        </section>
+
+        <!-- Flight Overview -->
+        <section id="flight-overview" class="bg-nav p-6 rounded-lg shadow-lg h-full flex flex-col">
+            <h2 class="text-2xl font-bold mb-4">Flight Overview</h2>
+            <div class="flex mb-4">
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-md">Sort by Time</button>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded-md ml-4">Sort by Airport</button>
             </div>
-        <?php endif; ?>
-    </section>
+            <div id="flight-list" class="flex-grow">
+                <!-- Flight list will be dynamically generated here -->
+            </div>
+        </section>
+
+        <!-- Add New Flight -->
+        <section id="add-flight" class="bg-nav p-6 rounded-lg shadow-lg h-full flex flex-col">
+            <h2 class="text-2xl font-bold mb-4">Add New Flight</h2>
+            <form action="#" method="POST" class="flex flex-col flex-grow">
+                <div class="mb-4 flex-grow">
+                    <label for="new-flight-number" class="block text-sm font-medium text-gray-700">Flight Number</label>
+                    <input type="text" id="new-flight-number" name="new-flight-number" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <!-- Other flight details inputs here -->
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Add Flight</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Add New Passenger -->
+        <section id="add-passenger" class="bg-nav p-6 rounded-lg shadow-lg h-full flex flex-col">
+            <h2 class="text-2xl font-bold mb-4">Add New Passenger</h2>
+            <form action="#" method="POST" class="flex flex-col flex-grow">
+                <div class="mb-4 flex-grow">
+                    <label for="passenger-name" class="block text-sm font-medium text-gray-700">Passenger Name</label>
+                    <input type="text" id="passenger-name" name="passenger-name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <!-- Other passenger details inputs here -->
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Add Passenger</button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Passenger Overview -->
+        <section id="passengers" class="bg-nav p-6 rounded-lg shadow-lg h-full flex flex-col">
+            <h2 class="text-2xl font-bold mb-4">Passenger Overview</h2>
+            <form action="#" method="POST" class="flex flex-col flex-grow">
+                <div class="mb-4 flex-grow">
+                    <label for="flight-number-passenger" class="block text-sm font-medium text-gray-700">Flight Number</label>
+                    <input type="text" id="flight-number-passenger" name="flight-number-passenger" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Retrieve Passenger List</button>
+                </div>
+            </form>
+            <div id="passenger-list" class="mt-4 flex-grow">
+                <!-- Passenger list will be dynamically generated here -->
+            </div>
+        </section>
+
+        <!-- Edit Passenger Details -->
+        <section id="edit-passenger" class="bg-nav p-6 rounded-lg shadow-lg h-full flex flex-col">
+            <h2 class="text-2xl font-bold mb-4">Edit Passenger Details</h2>
+            <form action="#" method="POST" class="flex flex-col flex-grow">
+                <div class="mb-4 flex-grow">
+                    <label for="search-passenger" class="block text-sm font-medium text-gray-700">Search Passenger</label>
+                    <input type="text" id="search-passenger" name="search-passenger" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                </div>
+                <!-- Passenger detail edit inputs here -->
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md">Update Passenger</button>
+                </div>
+            </form>
+        </section>
+    </div>
+</div>
+
+<!-- Container om footer aan de vloer te plakken -->
+<div class="min-h-screen"></div>
+
+<!-- Footer Include -->
+<?php include 'includes/footer.php'; ?>
+</body>
+</html>
