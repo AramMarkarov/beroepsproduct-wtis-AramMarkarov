@@ -2,13 +2,13 @@
 session_start();
 require_once 'db_connectie.php';
 
-// Check if the user is logged in as a passenger
+// Check of de gebruiker een passagier is
 if (!isset($_SESSION['passenger'])) {
     header('Location: login.php');
     exit();
 }
 
-// Fetch passenger's details
+// Fetch passagier details
 $passenger = $_SESSION['passenger'];
 $passengerId = $passenger['passagiernummer'];
 
@@ -19,10 +19,9 @@ if (!isset($_GET['vluchtnummer']) || !is_numeric($_GET['vluchtnummer'])) {
 $flightNumber = $_GET['vluchtnummer'];
 
 try {
-    // Connect to the database
     $db = maakVerbinding();
 
-    // Query to fetch flight details including max_gewicht_pp and maatschappijcode
+    // Max gewicht en max tassen (objecten) query
     $stmtFlight = $db->prepare("
         SELECT v.vluchtnummer, v.vertrektijd, v.gatecode, l.naam AS luchthaven_naam, v.max_gewicht_pp, v.maatschappijcode, m.max_objecten_pp
         FROM Vlucht v
@@ -38,7 +37,7 @@ try {
         die("Flight details not found.");
     }
 
-    // Validate if the flight is within the allowed check-in time frame (7 days before departure)
+    // Check of de vlucht binnen zeven dagen vertrekt, in het geval dat de gebruiker een URL aanpast om eerder te kunnen inchecken
     $departureTime = strtotime($flight['vertrektijd']);
     $currentDate = time();
     $sevenDaysLater = strtotime('+7 days', $currentDate);
@@ -47,12 +46,12 @@ try {
         die("You can only check in for flights within 7 days before departure.");
     }
 
-    // Check if the user has already checked in bags for this flight
+    // Check of de passagier al is ingecheckt
     $stmtCheckedIn = $db->prepare("
         SELECT COUNT(*) AS num_bags
         FROM BagageObject
         WHERE passagiernummer = :passagiernummer
-        AND objectvolgnummer BETWEEN 0 AND :max_objecten_pp  -- Check for bags 0 to max_objecten_pp
+        AND objectvolgnummer BETWEEN 0 AND :max_objecten_pp
     ");
     $stmtCheckedIn->bindParam(':passagiernummer', $passengerId);
     $stmtCheckedIn->bindValue(':max_objecten_pp', $flight['max_objecten_pp'], PDO::PARAM_INT);
@@ -63,17 +62,16 @@ try {
         die("You have already checked in your bags for this flight.");
     }
 
-    // Handle form submission for bag check-in
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Validate and process each bag
+        // Validatie en proces voor iedere tas
         $maxWeightAllowed = $flight['max_gewicht_pp'];
         $totalWeight = 0;
         $errors = [];
 
-        // Iterate over number of bags allowed by the airline
+        // Een loop die loopt over het aantal tassen toegestaan per maatschappij
         for ($i = 0; $i < $flight['max_objecten_pp']; $i++) {
             $weightKey = 'gewicht_' . $i;
-            if (isset($_POST[$weightKey]) && !empty($_POST[$weightKey])) {
+            if (!empty($_POST[$weightKey])) {
                 $weight = floatval($_POST[$weightKey]);
                 if ($weight <= 0) {
                     $errors[] = "Weight for bag " . ($i + 1) . " must be a positive number.";
@@ -81,20 +79,18 @@ try {
                     $totalWeight += $weight;
                     if ($totalWeight > $maxWeightAllowed) {
                         $errors[] = "Total weight of bags exceeds allowed limit.";
-                        break; // No need to check further bags
+                        break; // Einde check
                     }
                 }
             }
         }
 
-        // If no errors, insert bags into database
+        // Als er geen errors zijn, loopt de query
         if (empty($errors)) {
-            // Insert bags into database
             for ($i = 0; $i < $flight['max_objecten_pp']; $i++) {
                 $weightKey = 'gewicht_' . $i;
                 if (!empty($_POST[$weightKey])) {
                     $weight = floatval($_POST[$weightKey]);
-                    // Insert bag into database
                     $stmtInsertBag = $db->prepare("
                         INSERT INTO BagageObject (passagiernummer, objectvolgnummer, gewicht)
                         VALUES (:passagiernummer, :objectvolgnummer, :gewicht)
@@ -105,8 +101,7 @@ try {
                     $stmtInsertBag->execute();
                 }
             }
-
-            // Redirect to a success page or show a success message
+            // Wanneer succesvol, een redirect naar het dashboard
             header('Location: passenger_dashboard.php');
             exit();
         }

@@ -2,21 +2,20 @@
 session_start();
 require_once 'db_connectie.php';
 
-// Check if the user is logged in as a passenger
+// Check of de gebruiker een passagier is
 if (!isset($_SESSION['passenger'])) {
     header('Location: login.php');
     exit();
 }
 
-// Fetch passenger's details
+// Fetch passagier details
 $passenger = $_SESSION['passenger'];
 $passengerId = $passenger['passagiernummer'];
 
 try {
-    // Connect to the database
     $db = maakVerbinding();
 
-    // Query to fetch all flights (both past and upcoming) for the passenger
+    // Query die alle vluchten van de passagier ophaalt
     $stmt = $db->prepare("
         SELECT v.vluchtnummer, v.vertrektijd, v.gatecode, l.naam AS luchthaven_naam, p.passagiernummer
         FROM Vlucht v
@@ -77,7 +76,7 @@ try {
                         <td class="px-6 py-4 whitespace-nowrap"><?= htmlspecialchars($flight['gatecode']) ?></td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <?php
-                            // Check if the passenger has checked in for this flight
+                            // Check of de passagier al is ingecheckt
                             $stmtCheckCheckedIn = $db->prepare("
                                 SELECT COUNT(*) AS num_bags
                                 FROM BagageObject
@@ -89,19 +88,17 @@ try {
                             $numBags = $stmtCheckCheckedIn->fetchColumn();
 
                             if ($numBags > 0) {
-                                // User has already checked in
                                 echo '<span class="text-green-600">User is checked in</span>';
                             } else {
-                                // Check if the flight is upcoming within 7 days
+                                // Check of de vertrektijd binnen nu en zeven dagen is
                                 $departureTime = strtotime($flight['vertrektijd']);
                                 $currentDate = time();
                                 $sevenDaysLater = strtotime('+7 days', $currentDate);
 
                                 if ($departureTime >= $currentDate && $departureTime <= $sevenDaysLater) {
-                                    // Show check-in button
+                                    // Weergeef checkin knop
                                     echo '<a href="bag_checkin.php?vluchtnummer=' . htmlspecialchars($flight['vluchtnummer']) . '" class="text-blue-600 hover:text-blue-900">Check-in Bags</a>';
                                 } else {
-                                    // Show disabled button or message if needed
                                     echo 'Flight in past';
                                 }
                             }
