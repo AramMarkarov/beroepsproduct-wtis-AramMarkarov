@@ -13,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['flightNumber'])) {
     $db = maakVerbinding();
 
     $stmt = $db->prepare(
-        "SELECT v.vluchtnummer, v.bestemming, v.vertrektijd, l.naam AS luchthaven_naam
+        "SELECT vsud.vluchtnummer, v.bestemming, v.vertrektijd, l.naam AS luchthaven_naam
          FROM vlucht v
          JOIN luchthaven l ON v.bestemming = l.luchthavencode
          WHERE v.vluchtnummer = :flightNumber AND v.vertrektijd > GETDATE()"
