@@ -22,6 +22,7 @@ try {
         JOIN Luchthaven l ON v.bestemming = l.luchthavencode
         JOIN Passagier p ON v.vluchtnummer = p.vluchtnummer
         WHERE p.passagiernummer = :passagiernummer
+        AND v.vertrektijd > GETDATE()
         ORDER BY v.vertrektijd DESC
     ");
     $stmt->bindParam(':passagiernummer', $passengerId);

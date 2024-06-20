@@ -73,13 +73,12 @@ if (!empty($flightDetails)) {
     <div class="text-center p-4">
         <h1 class="text-headline font-bold mb-4">Welcome to GelreAir</h1>
         <p class="text-subheader mb-4">Your gateway to the world. Experience comfort and convenience with GelreAir.</p>
+        <form class="mt-8 space-y-6 w-full" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
+            <label for="flightNumber"></label>
+            <input id="flightNumber" name="flightNumber" type="text" required placeholder="Flightnumber" class="w-full px-3 py-2 rounded-md">
+            <button type="submit" class="w-full py-2 px-4 text-white hover:text-text bg-button hover:bg-hover rounded-md transition duration-150 ease-in-out">Search flight</button>
+        </form>
     </div>
-
-    <form class="mt-8 space-y-6 w-1/2" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="get">
-        <label for="flightNumber"></label>
-        <input id="flightNumber" name="flightNumber" type="text" required placeholder="Flightnumber" class="w-full px-3 py-2 rounded-md">
-        <button type="submit" class="w-full py-2 px-4 text-white hover:text-text bg-button hover:bg-hover rounded-md transition duration-150 ease-in-out">Search flight</button>
-    </form>
 
     <?php if (!empty($error)): ?>
         <p class="text-red-500 mt-4"><?php echo htmlspecialchars($error); ?></p>

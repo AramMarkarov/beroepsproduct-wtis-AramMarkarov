@@ -3,7 +3,10 @@ require_once 'db_connectie.php';
 
 ini_set('max_execution_time', '0');
 $db = maakVerbinding();
-// Dit alles is genomen van Fritz en aangepast door Quirijn
+// Dit alles is genomen van Fritz en aangepast door Quirijn. De aanpassing zorgt ervoor dat alle wachtwoorden die al gehashed zijn, worden overgeslagen zodra index.php geopend word.
+// Dus elke keer dat een nieuwe gebruiker de pagina opent vanaf docker (localhost:8080), zal deze php code runnen en alle wachtwoorden checken of deze zijn gehashed.
+// Let op, dit kan enkele minuten duren voordat alle wachtwoorden gehashed zijn
+
 // Update wachtwoord kolommen naar varchar(255)
 $alter = "ALTER table Balie ALTER COLUMN wachtwoord varchar(255)";
 $db->query($alter);
