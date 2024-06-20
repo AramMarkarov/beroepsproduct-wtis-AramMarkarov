@@ -5,9 +5,6 @@ echo '<nav class="mb-4 bg-nav rounded-md text-text text-body">
     <div class="mx-[20%] w-[60%] flex justify-between items-center z-0 py-6">
         <div class="flex space-x-12 flex-grow">
             <a href="homepage.php" class="hover:text-hover hover:underline transition duration-150 ease-in-out">Home</a>
-            <a href="#" class="hover:text-hover hover:underline transition duration-150 ease-in-out">Flights</a>
-            <a href="#" class="hover:text-hover hover:underline transition duration-150 ease-in-out">Services</a>
-            <a href="#" class="hover:text-hover hover:underline transition duration-150 ease-in-out">Contact</a>
         </div>
         <div class="flex space-x-12">';
 
