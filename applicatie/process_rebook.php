@@ -1,7 +1,7 @@
 <?php
 session_start();
 require_once 'db_connectie.php';
-
+require_once 'includes/data_functies.php';
 // Medewerker check
 if (!isset($_SESSION['employee'])) {
     header('Location: employeelogin.php');

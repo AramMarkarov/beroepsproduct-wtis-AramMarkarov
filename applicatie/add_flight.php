@@ -14,6 +14,7 @@ $success = '';
 
 $db = maakVerbinding();
 
+// Hier is het veilig meteen de DB te raadplegen omdat een baliemedewerker moet ingelogd zijn
 if ($db) {
     // Genereer nieuwe vluchtnummer, iedere vluchtnummer krijgt de nieuwste vluchtnummer + 1
     $stmt = $db->prepare("SELECT MAX(vluchtnummer) AS max_vluchtnummer FROM Vlucht");
@@ -137,7 +138,6 @@ if ($db) {
 <!-- Navigation Bar Include -->
 <?php include 'includes/nav.php'; ?>
 
-<!-- Main Content -->
 <div class="mx-[10%] w-[80%] py-8">
     <div class="bg-nav p-6 rounded-lg shadow-lg">
         <h2 class="text-2xl font-bold mb-4">Add New Flight</h2>
@@ -203,8 +203,22 @@ if ($db) {
 <?php include 'includes/footer.php'; ?>
 
 <script>
-    // Stukje JavaScript, dit kon via php gedaan worden. Om het live te updaten voor de medewerker, is JS een betere oplossing om live te kunnen handelen als de waarden te hoog zijn.
+    // Stukje JavaScript met toestemming van Fritz, dit kon via php gedaan worden. Om het live te updaten voor de medewerker, is JS een betere oplossing om live te kunnen handelen als de waarden te hoog zijn.
     // Dit is door chatGPT gegenereert en uitgevoerd, hoewel ik beperkt ervaring heb met JS, heb ik het vaker gebruikt, deels in iProject en in dit opzich werkt het volledig.
+    // Hieronder een voorbeeld hoe het in PHP zou uitzien zonder live update. Dit zal dan niet zichtbaar zijn voor de medewerker.
+
+    //    $maxAantal = isset($_POST['maxAantal']) ? $_POST['maxAantal'] : '';
+    //    $maxGewichtPP = isset($_POST['maxGewichtPP']) ? $_POST['maxGewichtPP'] : '';
+    //    $maxTotaalGewicht = '';
+    //
+    //
+    //if (!empty($maxAantal) && !empty($maxGewichtPP)) {
+    //    $maxAantal = intval($maxAantal);
+    //    $maxGewichtPP = floatval($maxGewichtPP);
+    //
+    //    $maxTotaalGewicht = $maxAantal * $maxGewichtPP;
+    //    $maxTotaalGewicht = number_format($maxTotaalGewicht, 2, '.', '');
+    //}
 
     // De waarden maxAantal en maxGewicht per persoon zijn opgevangen
     document.getElementById('maxAantal').addEventListener('input', updateMaxTotaalGewicht);

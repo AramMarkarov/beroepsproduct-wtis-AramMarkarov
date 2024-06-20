@@ -46,8 +46,6 @@ foreach($data as $rij) {
     $query->execute([":wachtwoord" => $hashed, ":pn" => $passagiernummer]);
 }
 
-echo "Wachtwoorden zijn bijgewerkt!";
-
 // Redirect naar homepage nadat alle wachtwoorden zijn gehashed
 header("Location: homepage.php");
 exit();

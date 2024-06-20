@@ -79,7 +79,7 @@ try {
                     $totalWeight += $weight;
                     if ($totalWeight > $maxWeightAllowed) {
                         $errors[] = "Total weight of bags exceeds allowed limit.";
-                        break; // Einde check
+                        break;
                     }
                 }
             }

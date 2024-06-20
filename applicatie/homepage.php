@@ -1,55 +1,62 @@
 <?php
 session_start();
 require_once 'db_connectie.php';
-
+require_once 'includes/data_functies.php';
 // Variabelen
 $error = '';
 $flightDetails = [];
 
-// Check als een form opgestuurd word
+
+// Check of een form is opgestuurd
 if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['flightNumber'])) {
-    $flightNumber = $_GET['flightNumber'];
+    // Voor andere pagina's die alleen vluchtnummer of passagiernummer zoeken, is deze functie niet meer gebruikt. Dat komt omdat er een dropdown menu is gebruikt en dus geen
+    // sanitize functie vereist is. Hier is het, om het te laten zien, weergeven voor OWASP.
+    $flightNumber = sanitizeInput($_GET['flightNumber']);
 
-    $db = maakVerbinding();
-
-    if ($db) {
-        $stmt = $db->prepare(
-            "SELECT v.vluchtnummer, v.bestemming, v.vertrektijd, iv.balienummer, v.gatecode, l.naam AS luchthaven_naam
-             FROM vlucht v
-             JOIN luchthaven l ON v.bestemming = l.luchthavencode
-             JOIN IncheckenVlucht iv ON v.vluchtnummer = iv.vluchtnummer
-             WHERE v.vluchtnummer = :flightNumber AND v.vertrektijd > CURRENT_TIMESTAMP"
-        );
-        $stmt->bindParam(':flightNumber', $flightNumber);
-
-        // Debugging: Error logging
+    // Valideer vlucht nummer op juiste format, als het klopt, maak DB verbinding
+    if (!preg_match('/^\d+$/', $flightNumber)) {
+        $error = "Invalid flight number format.";
+    } else {
         try {
-            if ($stmt->execute()) {
-                $flightDetails = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $db = maakVerbinding();
+            if ($db) {
+                $stmt = $db->prepare(
+                    "SELECT v.vluchtnummer, v.bestemming, v.vertrektijd, iv.balienummer, v.gatecode, l.naam AS luchthaven_naam
+                     FROM vlucht v
+                     JOIN luchthaven l ON v.bestemming = l.luchthavencode
+                     JOIN IncheckenVlucht iv ON v.vluchtnummer = iv.vluchtnummer
+                     WHERE v.vluchtnummer = :flightNumber AND v.vertrektijd > CURRENT_TIMESTAMP"
+                );
+                $stmt->bindParam(':flightNumber', $flightNumber);
 
-                if (empty($flightDetails)) {
-                    $error = "No future flights found for this flight number.";
+                // Error logging en handeling
+                if ($stmt->execute()) {
+                    $flightDetails = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                    if (empty($flightDetails)) {
+                        $error = "No future flights found for this flight number.";
+                    }
+                } else {
+                    error_log("SQL error: " . implode(", ", $stmt->errorInfo()));
+                    $error = "An error occurred while searching for the flight.";
                 }
             } else {
-                // Log SQL error
-                $errorInfo = $stmt->errorInfo();
-                $error = "SQL error: " . $errorInfo[2];
+                $error = "Database connection failed.";
             }
         } catch (PDOException $e) {
-            $error = "An issue occurred during the search of the flight: " . $e->getMessage();
+            error_log("Database error: " . $e->getMessage());
+            $error = "An error occurred while processing your request.";
         }
-    } else {
-        $error = "Database connection failed.";
     }
 }
 
-// Format the datetime for display
+// Format vertrektijd om seconden niet te weergeven
 if (!empty($flightDetails)) {
     try {
         $datetime = new DateTime($flightDetails[0]['vertrektijd']);
-        $formattedTime = $datetime->format('d/m/Y H:i');
+        $formattedTime = htmlspecialchars($datetime->format('d/m/Y H:i'), ENT_QUOTES, 'UTF-8');
     } catch (Exception $e) {
-        $error = "An error occurred while processing the departure time: " . $e->getMessage();
+        error_log("Datetime error: " . $e->getMessage());
+        $error = "An error occurred while processing the departure time.";
     }
 }
 ?>
@@ -81,7 +88,7 @@ if (!empty($flightDetails)) {
     </div>
 
     <?php if (!empty($error)): ?>
-        <p class="text-red-500 mt-4"><?php echo htmlspecialchars($error); ?></p>
+        <p class="text-red-500 mt-4"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></p>
     <?php endif; ?>
 
     <?php if (!empty($flightDetails)): ?>
@@ -99,11 +106,11 @@ if (!empty($flightDetails)) {
                 <tbody>
                 <?php foreach ($flightDetails as $flight): ?>
                     <tr>
-                        <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['vluchtnummer']); ?></td>
-                        <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['luchthaven_naam']); ?></td>
-                        <td class="border px-4 py-2"><?php echo htmlspecialchars($formattedTime); ?></td>
-                        <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['balienummer']); ?></td>
-                        <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['gatecode']); ?></td>
+                        <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['vluchtnummer'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['luchthaven_naam'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="border px-4 py-2"><?php echo htmlspecialchars($formattedTime, ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['balienummer'], ENT_QUOTES, 'UTF-8'); ?></td>
+                        <td class="border px-4 py-2"><?php echo htmlspecialchars($flight['gatecode'], ENT_QUOTES, 'UTF-8'); ?></td>
                     </tr>
                 <?php endforeach; ?>
                 </tbody>

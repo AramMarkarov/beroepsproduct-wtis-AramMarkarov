@@ -13,7 +13,7 @@ $error = '';
 $success = '';
 
 $db = maakVerbinding();
-
+// Hier is het veilig meteen de DB te raadplegen omdat een baliemedewerker moet ingelogd zijn
 if ($db) {
     // Fetch alle vluchten in de toekomst die niet op passagier capaciteit zit voor de dropdown
     $stmt = $db->prepare("SELECT v.vluchtnummer, v.bestemming, v.vertrektijd, v.max_aantal 

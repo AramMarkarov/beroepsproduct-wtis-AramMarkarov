@@ -2,27 +2,32 @@
 session_start();
 require_once 'db_connectie.php';
 
-// Check of de gebruiker een passagier is
+// Check of gebruiker is ingelogd
 if (!isset($_SESSION['passenger'])) {
     header('Location: login.php');
     exit();
 }
 
-// Fetch passagier details
+// Fetch gegevens van sessie. Belangrijk is dat niet iedere passagier de meest recente passagiernummer kan krijgen. Dit komt omdat dezelfde gebruiker vaker in de passagier tabel voorkomt
+// Ook als een php query/script zoekt naar de meest recente passagiernummer voor een komende vlucht. Als passagier inlog gegevens en passagiernummer verdeeld waren, kon er makkelijker gezocht worden naar vluchten
 $passenger = $_SESSION['passenger'];
 $passengerId = $passenger['passagiernummer'];
 
+$flights = [];
+$error = '';
+
+// Veilig om DB query te schrijven omdat een login vereiste is
 try {
     $db = maakVerbinding();
 
-    // Query die alle vluchten van de passagier ophaalt
+    // Query die vluchten zoek die aan passagier gelinkt zijn
     $stmt = $db->prepare("
-        SELECT v.vluchtnummer, v.vertrektijd, v.gatecode, l.naam AS luchthaven_naam, p.passagiernummer
+        SELECT v.vluchtnummer, v.vertrektijd, v.gatecode, l.naam AS luchthaven_naam
         FROM Vlucht v
         JOIN Luchthaven l ON v.bestemming = l.luchthavencode
         JOIN Passagier p ON v.vluchtnummer = p.vluchtnummer
         WHERE p.passagiernummer = :passagiernummer
-        AND v.vertrektijd > GETDATE()
+        AND v.vertrektijd > CURRENT_TIMESTAMP
         ORDER BY v.vertrektijd DESC
     ");
     $stmt->bindParam(':passagiernummer', $passengerId);
@@ -33,7 +38,26 @@ try {
         $error = "No flights found for this passenger.";
     }
 
+    // Check of de passagier al heeft ingecheckt voor de vlucht
+    foreach ($flights as &$flight) {
+        $stmtCheckCheckedIn = $db->prepare("
+            SELECT COUNT(*) AS num_bags
+            FROM BagageObject
+            WHERE passagiernummer = :passagiernummer
+            AND objectvolgnummer = 0
+        ");
+        $stmtCheckCheckedIn->bindParam(':passagiernummer', $passengerId);
+        $stmtCheckCheckedIn->execute();
+        $numBags = $stmtCheckCheckedIn->fetchColumn();
+        // boolean om kolom ACTIONS te beheren
+        if ($numBags > 0) {
+            $flight['checked_in'] = true;
+        } else {
+            $flight['checked_in'] = false;
+        }
+    }
 } catch (PDOException $e) {
+    error_log("Database error: " . $e->getMessage());
     $error = "An error occurred while fetching flight details.";
 }
 ?>
@@ -76,34 +100,13 @@ try {
                         <td class="px-6 py-4 whitespace-nowrap"><?= date('d-m-y H:i', strtotime($flight['vertrektijd'])) ?></td>
                         <td class="px-6 py-4 whitespace-nowrap"><?= htmlspecialchars($flight['gatecode']) ?></td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <?php
-                            // Check of de passagier al is ingecheckt
-                            $stmtCheckCheckedIn = $db->prepare("
-                                SELECT COUNT(*) AS num_bags
-                                FROM BagageObject
-                                WHERE passagiernummer = :passagiernummer
-                                AND objectvolgnummer IN (0)
-                            ");
-                            $stmtCheckCheckedIn->bindParam(':passagiernummer', $passengerId);
-                            $stmtCheckCheckedIn->execute();
-                            $numBags = $stmtCheckCheckedIn->fetchColumn();
-
-                            if ($numBags > 0) {
-                                echo '<span class="text-green-600">User is checked in</span>';
-                            } else {
-                                // Check of de vertrektijd binnen nu en zeven dagen is
-                                $departureTime = strtotime($flight['vertrektijd']);
-                                $currentDate = time();
-                                $sevenDaysLater = strtotime('+7 days', $currentDate);
-
-                                if ($departureTime >= $currentDate && $departureTime <= $sevenDaysLater) {
-                                    // Weergeef checkin knop
-                                    echo '<a href="bag_checkin.php?vluchtnummer=' . htmlspecialchars($flight['vluchtnummer']) . '" class="text-blue-600 hover:text-blue-900">Check-in Bags</a>';
-                                } else {
-                                    echo 'Flight in past';
-                                }
-                            }
-                            ?>
+                            <?php if ($flight['checked_in']): ?>
+                                <span class="text-green-600">User is checked in</span>
+                            <?php elseif (strtotime($flight['vertrektijd']) >= time() && strtotime($flight['vertrektijd']) <= strtotime('+7 days', time())): ?>
+                                <a href="bag_checkin.php?vluchtnummer=<?= htmlspecialchars($flight['vluchtnummer'], ENT_QUOTES, 'UTF-8') ?>" class="text-blue-600 hover:text-blue-900">Check-in Bags</a>
+                            <?php else: ?>
+                                Flight in past
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

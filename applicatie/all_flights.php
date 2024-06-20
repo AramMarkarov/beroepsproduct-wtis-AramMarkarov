@@ -8,7 +8,7 @@ if (!isset($_SESSION['employee'])) {
     exit();
 }
 
-// De medewerker account bevat een balienummer mee
+// De medewerker account bevat een balienummer
 $employeeCounter = $_SESSION['employee'];
 
 // Variabelen
@@ -69,7 +69,7 @@ if ($sortDeparture === 'asc') {
     $sql .= " ORDER BY v.vertrektijd DESC";
 }
 
-// Het is relatief veilig om hier DB verbinding te maken omdat de pagina meerder lagen heeft tegen URL copy pasten of dergelijke methoden
+// Hier is het veilig meteen de DB te raadplegen omdat een baliemedewerker moet ingelogd zijn
 $db = maakVerbinding();
 
 if ($db) {
@@ -112,10 +112,9 @@ if ($db) {
 <!-- Navigation Bar Include -->
 <?php include 'includes/nav.php'; ?>
 
-<!-- Main Content -->
 <div class="mx-[10%] w-[80%] py-8">
     <div class="grid grid-cols-1 gap-8">
-        <!-- Flight Information -->
+
         <section id="flights" class="bg-nav p-6 rounded-lg shadow-lg h-full flex flex-col">
             <h2 class="text-2xl font-bold mb-4">All Flights</h2>
             <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="GET" class="flex flex-col gap-4">

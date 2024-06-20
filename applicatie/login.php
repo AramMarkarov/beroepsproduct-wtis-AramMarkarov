@@ -2,40 +2,35 @@
 session_start();
 require_once 'db_connectie.php';
 
-// Variables
+// Variabelen
 $error = '';
 
-// Check if a form is submitted
+// Check of een form is verstuurd (login verzoek)
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $username = $_POST['gebruikersnaam'];
     $password = $_POST['wachtwoord'];
 
     try {
         $db = maakVerbinding();
-        // Prepare and execute query
+        // Prepare query die de gegeven naam zoekt
         $stmt = $db->prepare("SELECT * FROM Passagier WHERE naam = :username");
         $stmt->bindParam(':username', $username);
 
         if (!$stmt->execute()) {
             die("Failed to execute query: " . implode(", ", $stmt->errorInfo()));
         }
-        // Fetch passenger data
+        // Fetch passagier data om later met het wachtwoord te zoeken
         $passenger = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // Verify password if passenger exists
-        if ($passenger) {
-            if (password_verify($password, $passenger['wachtwoord'])) {
-                // Successful login
-                $_SESSION['passenger'] = $passenger;
-                header('Location: passenger_dashboard.php'); // Redirect to passenger dashboard or desired page
-                exit();
-            } else {
-                // Invalid password
-                $error = "Invalid password. Please try again.";
-            }
+        // Verifieer of wachtwoord bestaat en bij de juiste gebruiker overeenkomen
+        if ($passenger && password_verify($password, $passenger['wachtwoord'])) {
+            // Succesvolle login
+            $_SESSION['passenger'] = $passenger;
+            header('Location: passenger_dashboard.php'); // Redirect to passenger dashboard or desired page
+            exit();
         } else {
-            // Passenger not found
-            $error = "Invalid username. Please try again.";
+            // Incorrecte gegevens
+            $error = "Invalid username or password. Please try again.";
         }
     } catch (PDOException $e) {
         // Database error

@@ -95,7 +95,6 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['flight-number'])) {
 <!-- Navigation Bar Include -->
 <?php include 'includes/nav.php'; ?>
 
-<!-- Main Content -->
 <div class="mx-[10%] w-[80%] py-8">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <!-- Flight Information -->
@@ -152,7 +151,6 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['flight-number'])) {
                 </table>
             <?php endif; ?>
 
-            <!-- View All Flights Button -->
             <div class="mt-4 flex justify-center">
                 <button onclick="location.href='all_flights.php'" class="w-full py-2 px-4 text-white hover:text-text bg-button hover:bg-hover rounded-md transition duration-150 ease-in-out">
                     View All Flights
@@ -160,7 +158,6 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['flight-number'])) {
             </div>
         </section>
 
-        <!-- Add Flight and Add Passenger Buttons -->
         <section id="actions" class="bg-nav p-6 rounded-lg shadow-lg h-full flex flex-col">
             <h2 class="text-2xl font-bold mb-4">Actions</h2>
             <div class="flex flex-col gap-4">
@@ -178,8 +175,6 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET['flight-number'])) {
                 </button>
             </div>
         </section>
-
-        <!-- Other sections here -->
     </div>
 </div>
 
